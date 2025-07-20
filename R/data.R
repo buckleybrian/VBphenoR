@@ -1,0 +1,26 @@
+#' Synthetic Sickle Cell Anaemia data
+#'
+#' This data is a transformed version of the SCD data from the paper
+#' Al-Dhamari, Abu Attieh and Prasser. Synthetic datasets for open software development in
+#' rare disease research. Orphanet J Rare Dis 19, 265 (2024).
+#' https://doi.org/10.1186/s13023-024-03254-2.  We have retained a subset of the data columns
+#' that are relevant to our model and transformed the data into a representative cohort by
+#' retaining an expected prevalence of SCD (3%), with the rest converted to non-SCD
+#' patients by distributing the biomarker values around a healthy value.
+#' These columns are described below.
+#'
+#' @format ## `scd_cohort`
+#' A data frame with 100,403 rows and 9 columns:
+#' \describe{
+#'   \item{age}{Patient Age}
+#'   \item{sex}{Patient gender assuming only Male and Female genders}
+#'   \item{race}{Patient race.  One of "Others", "African-American", "European-American"}
+#'   \item{birthDate}{Patient birth date}
+#'   \item{diagDate}{Patient diagnosis date}
+#'   \item{CBC}{Complete Blood Count biomarker test in g/dL}
+#'   \item{RC}{Reticulocytes Count biomarker test in % Reticulocytes}
+#'   \item{highrisk}{Flag for high risk ethnicity}
+#'   \item{SCD}{Flag indicating SCD observations to test model performance}
+#' }
+#' @source <https://doi.org/10.1186/s13023-024-03254-2>
+"scd_cohort"
