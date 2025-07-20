@@ -79,7 +79,7 @@ Main algorithm function for the VB CAVI GMM
   X <- faithful
   P <- ncol(X)
 
-  # Run with 4 presumed components
+  # Run with 4 presumed components for demonstration purposes
   k = 4
 
   # ------------------------------------------------------------------------------

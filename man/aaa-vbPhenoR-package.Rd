@@ -95,6 +95,7 @@ X2[,highrisk:=as.numeric(highrisk)]
 X2[,Intercept:=1]
 setcolorder(X2, c("Intercept","age","highrisk","CBC","RC"))
 
+# Run the patient phenotyping model
 set.seed(123)
 pheno_result <- runModel(scd_cohort,
                         gmm_X=X1, gmm_k=k, gmm_init="dbscan",
