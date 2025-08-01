@@ -69,6 +69,15 @@ vb_gmm_cavi <- function(X, k,
                    verbose=FALSE,
                    logDiagnostics=FALSE,
                    logFilename="vb_gmm_log.txt") {
+
+  # Cannot have an empty data
+  if (is.null(n <- nrow(X)))
+    stop("X must be a data frame or matrix")
+
+  # Cannot have missing values
+  if(anyNA(X))
+    stop("The VB GMM cannot run with missing values in X")
+
   X <- as.matrix(X)
   n <- nrow(X)
   p <- ncol(X)
