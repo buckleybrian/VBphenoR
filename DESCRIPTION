@@ -1,4 +1,4 @@
-Package: vbPhenoR
+Package: VBphenoR
 Title: Patient Phenotyping from Electronic Health Records data using Variational Bayes methods
 Version: 0.0.1.0000
 Authors@R: c(

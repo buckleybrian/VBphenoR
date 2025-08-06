@@ -1,14 +1,14 @@
-#' The vbPhenoR package
+#' The VBphenoR package
 #'
-#' vbPhenoR is a library and R package for a variational Bayes approach to clinical patient phenotyping using EHR data.
+#' VBphenoR is a library and R package for a variational Bayes approach to clinical patient phenotyping using EHR data.
 #'
-#' @rdname aaa-vbPhenoR-package
+#' @rdname aaa-VBphenoR-package
 #' @name vbPheno-package
 #' @keywords internal
-#' @aliases vbPhenoR-package vbPhenoR
+#' @aliases VBphenoR-package VBphenoR
 #'
 #' @section Introduction:
-#' The main goal of the vbPhenoR library is to provide a comprehensive variational
+#' The main goal of the VBphenoR library is to provide a comprehensive variational
 #' Bayes approach to clinical patient phenotyping using Electronic Health Records (EHR)
 #' data.  The phenotyping model is adapted from Hubbard et al (2019). The motivation
 #' for using variational Bayes rather than the gold-standard Monte Carlo Bayes
@@ -17,7 +17,7 @@
 #' more detail in our paper, Buckley et al. (2024).
 #'
 #' @section VB Phenotyping algorithm:
-#' The implementation of vbPhenoR performs the following steps:
+#' The implementation of VBphenoR performs the following steps:
 #'
 #' 1. Run a variational Gaussian Mixture Model using EHR-derived patient characteristics
 #'    to discover the latent variable \eqn{D_i} indicating the phenotype of interest for
@@ -63,13 +63,13 @@
 #'
 #' library(data.table)
 #'
-#' # Load the SCD example data supplied with the vbPhenoR package
+#' # Load the SCD example data supplied with the VBphenoR package
 #' data(scd_cohort)
 #'
 #' # We will use the SCD biomarkers to discover the SCD latent class
 #' X1 <- scd_cohort[,.(CBC,RC)]
 #'
-#' # We need to supply DBSCAN hyper-parameters as we will initialise vbPhenoR
+#' # We need to supply DBSCAN hyper-parameters as we will initialise VBphenoR
 #' # with DBSCAN. See help(DBSCAN) for details of these parameters.
 #' initParams <- c(0.15, 5)
 #' names(initParams) <- c('eps','minPts')

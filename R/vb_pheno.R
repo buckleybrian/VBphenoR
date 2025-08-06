@@ -9,7 +9,7 @@
 # Brian Buckley December 2024
 # ------------------------------------------------------------------------------
 
-vbPhenoR.env <- new.env(parent = emptyenv())
+VBphenoR.env <- new.env(parent = emptyenv())
 
 #' Load Patient Data
 #'
@@ -24,9 +24,9 @@ loadData <- function(path) {
 
   # Dummy content to be filled
   data <- data.frame(x=seq(from=1, to=1000, by=1), y=rep(from=1, to=1000, by=1))
-  vbPhenoR.env$data <- data
+  VBphenoR.env$data <- data
 
-  class(data) <- c("vbPheno", class(data))
+  class(data) <- c("VBpheno", class(data))
   return(data)
 }
 
@@ -129,23 +129,23 @@ runModel <- function(ehr_data,
 
 #' Variational Bayes Patient Phenotyping.
 #'
-#' Print a vbPheno object
-#' @param x An object of class 'vbPheno'
+#' Print a VBpheno object
+#' @param x An object of class 'VBpheno'
 #' @param ... Additional arguments to be passed onto lower-level functions at a later stage of development.
 #' @export
-print.vbPheno <- function(x, ...) {
+print.VBpheno <- function(x, ...) {
   # TODO - A formatted table of mean biomarker shifts and clinical code sensitivity/specificity
   knitr::kable(head(as.data.frame(x),10), format = "markdown", row.names = FALSE)
 }
 
 #' Variational Bayes Patient Phenotyping.
 #'
-#' Summary method for class 'vbPheno'
+#' Summary method for class 'VBpheno'
 #'
-#' @param object An object of class 'vbPheno'.
+#' @param object An object of class 'VBpheno'.
 #' @param ... Additional arguments to be passed onto lower-level functions at a later stage of development.
 #' @export
-summary.vbPheno <- function(object, ...) {
+summary.VBpheno <- function(object, ...) {
   # TODO - a formatted list of posterior coefficients with credibility intervals
   summary.data.frame(object, ...)
 }
@@ -154,10 +154,10 @@ summary.vbPheno <- function(object, ...) {
 #'
 #' Plot Model Summaries, Biomarker shifts and Model Diagnostics for Variational Bayes Patient Phenotyping.
 #'
-#' @param x An object of class 'vbPheno'.
+#' @param x An object of class 'VBpheno'.
 #' @param ... Additional arguments passed to the plot method
 #' @export
-plot.vbPheno <- function(x, ...) {
+plot.VBpheno <- function(x, ...) {
   # TODO - a grid of plots - ROC for sensitivity analysis and forest plot for biomarkers
   plot(x[,1], x[,-1], pch = 19,
        xlab = names(x)[8], ylab = names(x)[7],

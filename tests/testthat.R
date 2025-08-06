@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(vbPhenoR)
+library(VBphenoR)
 
-test_check("vbPhenoR")
+test_check("VBphenoR")

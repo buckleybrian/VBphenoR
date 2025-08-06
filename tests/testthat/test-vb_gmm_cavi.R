@@ -90,3 +90,17 @@ test_that("A partial prior can be submitted (logW)", {
   gmm_result <- vb_gmm_cavi(X=x, k=k, prior=prior, delta=1e-6, maxiters = 50, init="kmeans")
   expect_equal(length(gmm_result$z_post), 1000)
 })
+
+test_that("A partial prior can be submitted (three hyperparameters out of six)", {
+  x <- read.csv(test_path("testdata", "gmm_dat.csv"))
+  k <- 2
+  p <- ncol(x)
+  X <- t(x)
+
+  prior <- list(beta = 1,
+                v = p+1,
+                logW = -2*sum(log(diag(chol(diag(1,p))))))
+
+  gmm_result <- vb_gmm_cavi(X=x, k=k, prior=prior, delta=1e-6, maxiters = 50, init="kmeans")
+  expect_equal(length(gmm_result$z_post), 1000)
+})

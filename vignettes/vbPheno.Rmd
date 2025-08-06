@@ -1,5 +1,5 @@
 ---
-title: "vbPhenoR: Patient Phenotyping from Electronic Health Records using Variational Bayes"
+title: "VBphenoR: Patient Phenotyping from Electronic Health Records using Variational Bayes"
 author: "Brian Buckley, Adrian O'Hagan, Marie Galligan"
 output: 
   rmarkdown::html_vignette:
@@ -7,7 +7,7 @@ output:
     fig_caption: yes
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{vbPhenoR: Patient Phenotyping from Electronic Health Records using Variational Bayes}
+  %\VignetteIndexEntry{VBphenoR: Patient Phenotyping from Electronic Health Records using Variational Bayes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: bibliography.bib
@@ -15,7 +15,7 @@ csl: ims.csl
 ---
 
 ```{r, include = FALSE}
-knitr::opts_knit$set(root.dir = r"[C:/Users/buckl/Documents/vbPhenoR/vignettes]")
+#knitr::opts_knit$set(root.dir = r"[C:/Users/buckl/Documents/VBphenoR/vignettes]")
 knitr::opts_chunk$set(
   echo = FALSE,
   collapse = TRUE,
@@ -41,10 +41,10 @@ knitr::opts_chunk$set(
  }
 </style>
 
-This is the vignette for package vbPhenoR.
+This is the vignette for package VBphenoR.
 
 ```{r setup}
-library(vbPhenoR)
+library(VBphenoR)
 ```
 
 # Introduction 
@@ -53,7 +53,7 @@ We previously implemented a patient phenotyping LCA model, Buckley et al. (2024)
 
 In this R package [@grunsky2002r] we now propose a closed-form approach based on the theory defined in Bishop (2006) [@bishop2006pattern], Nakajima et al. (2019) [@nakajima2019variational] and the review of Blei et al. (2017) [@blei2017variational]. We implement a variational Bayes Gaussian Mixture Model (GMM) algorithm using the closed-form coordinate ascent variational inference (CAVI) approach to determine the phenotype latent class, then implement a variational Bayes logit regression based on Durante & Rigon (2019) [@durante2019conditionally], where we determine the probability of the phenotype in the supplied cohort, the shift in biomarkers for patients with the phenotype of interest versus a normal population along with sensitivity analysis of binary indicator clicical codes and medication codes.  The logit model likelihood uses the latent class from the GMM step to inform the conditional (see section 2.2 in [@buckley2024variational]).
 
-The implementation of vbPhenoR performs the following steps:
+The implementation of VBphenoR performs the following steps:
 
  1. Run a variational Gaussian Mixture Model using EHR-derived patient characteristics
     to discover the latent variable $D_i$ indicating the phenotype of interest for
@@ -83,13 +83,13 @@ $\\$
 ``` {r, eval=F, echo=T}
 library(data.table)
 
-# Load the SCD example data supplied with the vbPhenoR package
+# Load the SCD example data supplied with the VBphenoR package
 data(scd_cohort)
 
 # We will use the SCD biomarkers to discover the SCD latent class
 X1 <- scd_cohort[,.(CBC,RC)]
  
-# We need to supply DBSCAN hyper-parameters as we will initialise vbPhenoR
+# We need to supply DBSCAN hyper-parameters as we will initialise VBphenoR
 # with DBSCAN. See help(DBSCAN) for details of these parameters.
 initParams <- c(0.15, 5)
 names(initParams) <- c('eps','minPts')
@@ -366,7 +366,7 @@ knitr::include_graphics(c("gmm_DBSCAN_k_2.jpg"))
 ```
 
 
-Example R code to run all examples above can be found in the manual page for *vb_gmm_cavi* and *vbPhenoR*.
+Example R code to run all examples above can be found in the manual page for *vb_gmm_cavi* and *VBphenoR*.
 
 
 ## Variational Logit
