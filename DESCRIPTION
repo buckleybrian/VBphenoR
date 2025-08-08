@@ -1,5 +1,5 @@
 Package: VBphenoR
-Title: Patient Phenotyping from Electronic Health Records data using Variational Bayes methods
+Title: Latent Patient Phenotyping from Electronic Health Records Data using Variational Bayes Methods
 Version: 0.0.1.0000
 Authors@R: c(
     person("Brian", "Buckley", , "brian.buckley.1@ucdconnect.ie", role = c("aut", "cre", "cph"),
@@ -9,7 +9,7 @@ Authors@R: c(
     person("Marie", "Galligan", , "marie.galligan@ucd.ie", role = c("aut"),
            comment = "Co-author")
   )
-Description: Variational Bayes Patient Phenotyping using a variational Bayes Gaussian Mixture Model (VB-GMM) for Latent Class Analysis and variational Bayes regression for Biomarker shifts, both implemented by a Coordinate Ascent Variational Inference (CAVI) algorithm.
+Description: Variational Bayes Latent Patient Phenotyping using a variational Bayes Gaussian Mixture Model (VB-GMM) for Latent Class Analysis and variational Bayes regression for Biomarker level shifts, both implemented by Coordinate Ascent Variational Inference (CAVI) algorithms.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

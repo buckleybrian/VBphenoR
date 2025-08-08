@@ -216,7 +216,6 @@ vb_gmm_cavi <- function(X, k,
 #' @param initParams initialization parameters for dbscan.  NULL if dbscan not selected for init.
 #'
 #' @return A list of the initially fitted posterior Q family
-#' @export
 #'
 VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
 
@@ -289,7 +288,6 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
 #' @param q_post A list of the fitted posterior Q family at iteration t-1.
 #'
 #' @return A list of the fitted posterior Q family after the E step at iteration t.
-#' @export
 #'
 VB_GMM_Expectation <- function(X, n, q_post) {
 
@@ -330,7 +328,6 @@ VB_GMM_Expectation <- function(X, n, q_post) {
 #' @param prior Prior for the GMM parameters.
 #'
 #' @return A list of the fitted posterior Q family after the M step at iteration t.
-#' @export
 #'
 VB_GMM_Maximisation <- function(X, q_post, prior) {
 
@@ -385,7 +382,6 @@ VB_GMM_Maximisation <- function(X, q_post, prior) {
 #' @param prior Prior for the GMM parameters.
 #'
 #' @return elbo the Evidence Lower Bound at iteration t following E and M steps.
-#' @export
 #'
 VB_GMM_ELBO <- function(X, p, n, q_post, prior) {
 
