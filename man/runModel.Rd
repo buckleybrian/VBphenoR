@@ -6,6 +6,7 @@
 \usage{
 runModel(
   ehr_data,
+  biomarkers,
   gmm_X,
   gmm_k,
   gmm_delta = 1e-06,
@@ -24,6 +25,8 @@ runModel(
 }
 \arguments{
 \item{ehr_data}{The EHR data.}
+
+\item{biomarkers}{The EHR variables that are biomarkers. This is a vector of data column names corresponding to the biomarker variables.}
 
 \item{gmm_X}{The input design matrix. Note the intercept column vector is assumed included.}
 
@@ -56,9 +59,8 @@ runModel(
 \value{
 A list containing:
 \itemize{
-\item prob - The probability of phenotype given the data and priors.
+\item prevalence - The mean probability of latent phenotype given the data and priors.
 \item biomarker_shift - A data frame containing the biomarker shifts from normal for the phenotype.
-\item sensitivity - The sensitivity and specificity for the dichotomous clinical codes.
 \item gmm - The VB GMM results. For details see help(vb_gmm_cavi).
 \item logit - The VB Logit results.  For details see help(logit_CAVI).
 }

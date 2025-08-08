@@ -131,7 +131,7 @@ vb_gmm_cavi <- function(X, k,
   itr <- 1                                 # Iteration counter
 
   # Initialise a progress bar
-  pb <- txtProgressBar(min = 1, max = maxiters, style = 3)
+  pb <- txtProgressBar(title = "VB GMM", min = 1, max = maxiters, style = 3)
 
   while(!converge & itr <= maxiters) {
 
@@ -255,13 +255,14 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
     dbs <- dbscan(t(X), eps = initParams['eps'], minPts = initParams['minPts'])
     z <- dbs$cluster
 
-    # Temp - remove when HDSCAN solution done
+    # Align DBSCAN clusters with k by assigning smallest clusters to highest cluster
+    # - replace when HDSCAN solution done
     if(length(unique(z)) > k) {
       ztab <- as.data.frame(table(z))
       ztab$z <- as.character(ztab$z)
       ztab <- ztab[order(ztab$Freq),]
-      dropz <- ztab$z[1]
-      z[z == dropz] <- ztab[nrow(ztab),]$z
+      dropz <- ztab$z[1:(nrow(ztab)-k)]
+      z[z %in% dropz] <- ztab[nrow(ztab),]$z
     }
 
   } else if(init == "random") {

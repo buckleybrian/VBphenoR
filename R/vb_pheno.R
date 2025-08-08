@@ -11,28 +11,10 @@
 
 VBphenoR.env <- new.env(parent = emptyenv())
 
-#' Load Patient Data
-#'
-#' @param path The path to the patient data.
-#'
-#' @return loaded data.
-#' @export
-#'
-#' @importFrom utils head
-#'
-loadData <- function(path) {
-
-  # Dummy content to be filled
-  data <- data.frame(x=seq(from=1, to=1000, by=1), y=rep(from=1, to=1000, by=1))
-  VBphenoR.env$data <- data
-
-  class(data) <- c("VBpheno", class(data))
-  return(data)
-}
-
 #' Run the Variational Bayes patient Phenotyping model
 #'
 #' @param ehr_data The EHR data.
+#' @param biomarkers The EHR variables that are biomarkers. This is a vector of data column names corresponding to the biomarker variables.
 #' @param gmm_X The input design matrix. Note the intercept column vector is assumed included.
 #' @param gmm_k The maximum guess for how many disease components exist.  Minimum is 2 (binary response).
 #' @param gmm_delta Change in ELBO that triggers algorithm stopping.
@@ -49,14 +31,18 @@ loadData <- function(path) {
 #' @param logit_verbose Print out information per iteration to track progress in case of long-running experiments.
 #'
 #' @return A list containing:
-#' * prob - The probability of phenotype given the data and priors.
+#' * prevalence - The mean probability of latent phenotype given the data and priors.
 #' * biomarker_shift - A data frame containing the biomarker shifts from normal for the phenotype.
-#' * sensitivity - The sensitivity and specificity for the dichotomous clinical codes.
 #' * gmm - The VB GMM results. For details see help(vb_gmm_cavi).
 #' * logit - The VB Logit results.  For details see help(logit_CAVI).
 #' @export
 #'
-runModel <- function(ehr_data,
+#' @importFrom data.table .SD
+#' @importFrom data.table :=
+#' @importFrom data.table as.data.table
+#' @import knitr
+#'
+runModel <- function(ehr_data, biomarkers,
                      gmm_X, gmm_k, gmm_delta=1e-6,
                             gmm_init="kmeans", gmm_initParams=NULL,
                             gmm_maxiters=200, gmm_prior=NULL,
@@ -73,7 +59,7 @@ runModel <- function(ehr_data,
                             stopIfELBOReverse=gmm_stopIfELBOReverse,
                             verbose=gmm_verbose)
 
-  # Use proper label-switching - see label.switching R package
+  # Set 1,2 to 0,1 where 0 is the main class
   z <- gmm_result$z_post
   ztab <- as.data.frame(table(z))
   ztab$z <- as.character(ztab$z)
@@ -86,9 +72,8 @@ runModel <- function(ehr_data,
     z[z==1] <- 1
   }
 
-  # Now Run regression model for shift in biomarkers and sensitivity analysis
-  # using the GMM cluster assignments as the response
-
+  # Now Run regression model for shift in biomarkers using the GMM cluster
+  # assignments as the response
   y <- z
   y <- as.numeric(y)
 
@@ -98,68 +83,33 @@ runModel <- function(ehr_data,
   logit_result <- logit_CAVI(X=logit_X, y=y, prior=logit_prior,
                              tol=logit_tol, maxiter=logit_maxiter,
                              verbose=logit_verbose)
-
   coeff <- logit_result$mu
 
-  # [1,]  6.400845359 Intercept
-  # [2,]  0.004672085 age
-  # [3,]  0.151123043 highrisk
-  # [4,] -1.560289320 CBC
-  # [5,]  4.661329073 RC
+  # Add the log odds and probability of latent phenotype
+  . <- log_odds <- NULL
+  . <- prob <- NULL
+  logit_dt <- as.data.table(logit_X)
+  logit_dt[,log_odds:=sum(coeff * .SD), by = 1:nrow(logit_dt)]
+  logit_dt[,prob:=exp(log_odds)/(1 + exp(log_odds))]
 
-  log_odds_SCD <- coeff[1] +(coeff[2]*mean(logit_X[,'age'])) +
-                  (coeff[3]*mean(logit_X[,'highrisk'])) +
-                  (coeff[4]*mean(logit_X[,'CBC'])) +
-                  (coeff[5]*mean(logit_X[,'RC']))
-  prob_SCD <- exp(log_odds_SCD)/(1 + exp(log_odds_SCD))
+  # Mean probability of latent phenotype in the EHR cohort
+  prevalence <- mean(logit_dt$prob) * 100
 
-  options(scipen = 999)
-  prob_SCD*100 # % probability of SCD
+  # Shift in Biomarkers for latent phenotype
+  bio_shift <- vector(mode="list", length=length(biomarkers))
+  df <- as.data.frame(logit_X)
+  for (i in 1:length(biomarkers)) {
+    idx <- grep(biomarkers[i], colnames(df))
+    if(sign(coeff[idx]) < 0) {
+      bio_shift[[i]] <- colMeans(df[,idx,drop = FALSE])*abs(coeff[idx]) - colMeans(df[,idx,drop = FALSE])
+    } else {
+      bio_shift[[i]] <- colMeans(df[,idx,drop = FALSE])*coeff[idx]
+    }
+  }
+  biomarker_shift <- data.frame(biomarker=biomarkers, shift=unlist(bio_shift))
 
-  # Shift in Biomarkers for SCD phenotype
-  CBC_shift <- (mean(logit_X[,'CBC'])*abs(coeff[4])) - mean(logit_X[,'CBC'])   # 7.925
-  RC_shift <- mean(logit_X[,'RC'])*abs(coeff[5]) # 3.67
-
-  return(list(prob=prob_SCD,
-              biomarker_shift=data.frame(CBC_shift=CBC_shift,RC_shift=RC_shift),
-              sensitivity="TBD",
+  return(list(prevalence=prevalence,
+              biomarker_shift=biomarker_shift,
               gmm=gmm_result,
               logit=logit_result))
-}
-
-#' Variational Bayes Patient Phenotyping.
-#'
-#' Print a VBpheno object
-#' @param x An object of class 'VBpheno'
-#' @param ... Additional arguments to be passed onto lower-level functions at a later stage of development.
-#' @export
-print.VBpheno <- function(x, ...) {
-  # TODO - A formatted table of mean biomarker shifts and clinical code sensitivity/specificity
-  knitr::kable(head(as.data.frame(x),10), format = "markdown", row.names = FALSE)
-}
-
-#' Variational Bayes Patient Phenotyping.
-#'
-#' Summary method for class 'VBpheno'
-#'
-#' @param object An object of class 'VBpheno'.
-#' @param ... Additional arguments to be passed onto lower-level functions at a later stage of development.
-#' @export
-summary.VBpheno <- function(object, ...) {
-  # TODO - a formatted list of posterior coefficients with credibility intervals
-  summary.data.frame(object, ...)
-}
-
-#' Variational Bayes Patient Phenotyping.
-#'
-#' Plot Model Summaries, Biomarker shifts and Model Diagnostics for Variational Bayes Patient Phenotyping.
-#'
-#' @param x An object of class 'VBpheno'.
-#' @param ... Additional arguments passed to the plot method
-#' @export
-plot.VBpheno <- function(x, ...) {
-  # TODO - a grid of plots - ROC for sensitivity analysis and forest plot for biomarkers
-  plot(x[,1], x[,-1], pch = 19,
-       xlab = names(x)[8], ylab = names(x)[7],
-       main = "Example VB Phenotype Plot")
 }

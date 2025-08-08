@@ -15,7 +15,6 @@ csl: ims.csl
 ---
 
 ```{r, include = FALSE}
-#knitr::opts_knit$set(root.dir = r"[C:/Users/buckl/Documents/VBphenoR/vignettes]")
 knitr::opts_chunk$set(
   echo = FALSE,
   collapse = TRUE,

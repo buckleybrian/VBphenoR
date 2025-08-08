@@ -66,16 +66,14 @@
 #' # Load the SCD example data supplied with the VBphenoR package
 #' data(scd_cohort)
 #'
-#' # We will use the SCD biomarkers to discover the SCD latent class
+#' # We will use the SCD biomarkers to discover the SCD latent class.
+#' # X1 is the data matrix for the VB GMM.
 #' X1 <- scd_cohort[,.(CBC,RC)]
 #'
 #' # We need to supply DBSCAN hyper-parameters as we will initialise VBphenoR
 #' # with DBSCAN. See help(DBSCAN) for details of these parameters.
 #' initParams <- c(0.15, 5)
 #' names(initParams) <- c('eps','minPts')
-#'
-#' # X1 is the data matrix for the VB GMM
-#' X1 <- t(X1)
 #'
 #' # Set an informative prior for the VB GMM mixing coefficient alpha
 #' # hyper-parameter
@@ -99,8 +97,11 @@
 #' setcolorder(X2, c("Intercept","age","highrisk","CBC","RC"))
 #'
 #' # Run the patient phenotyping model
+#'
+#' # Need to state what columns are the biomarkers
+#' biomarkers <- c('CBC', 'RC')
 #' set.seed(123)
-#' pheno_result <- runModel(scd_cohort,
+#' pheno_result <- runModel(scd_cohort, biomarkers,
 #'                         gmm_X=X1, gmm_k=k, gmm_init="dbscan",
 #'                         gmm_initParams=initParams,
 #'                         gmm_maxiters=20, gmm_prior=prior_gmm,
@@ -109,7 +110,7 @@
 #')
 #'
 #' # Biomarker shifts for phenotype of interest
-#' pheno_result
+#' pheno_result$biomarker_shift
 #' }
 #'
 "_PACKAGE"

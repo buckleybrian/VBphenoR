@@ -24,7 +24,8 @@ Imports:
     pracma,
     knitr,
     utils,
-    dbscan
+    dbscan,
+    data.table
 Depends: 
     R (>= 3.5.0)
 LazyData: true
