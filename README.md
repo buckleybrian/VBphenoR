@@ -19,7 +19,7 @@ install.packages("VBphenoR")
 
 `VBphenoR` can also be downloaded and installed via GitHub. The most
 useful if want to download a *specific* version of the package (which
-can be found at <https://github.com/buckleybrian/`VBphenoR`/releases>):
+can be found at <https://github.com/buckleybrian/VBphenoR/releases>):
 
 ``` r
 devtools::install_github("buckleybrian/VBphenoR@vx.xx.x")
