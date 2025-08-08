@@ -1,6 +1,6 @@
 Package: VBphenoR
 Title: Latent Patient Phenotyping from Electronic Health Records Data using Variational Bayes Methods
-Version: 0.0.1.0000
+Version: 1.0.0
 Authors@R: c(
     person("Brian", "Buckley", , "brian.buckley.1@ucdconnect.ie", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-5478-5830")),
