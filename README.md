@@ -1,2 +1,61 @@
 # VBphenoR
-VBphenoR: Patient Phenotyping from Electronic Health Records using Variational Bayes
+`VBphenoR`: Latent Patient Phenotyping from Electronic Health Records (EHR) using Variational Bayes
+
+# Overview
+
+`VBphenoR` is an R package for discovering latent patient phenotypes from realistically large EHR data using Bayesian statistics. 
+In order to computationally support EHR data, we employ variational Bayes (VB). Currently, it supports latent class discovery
+using VB Gaussian Mixture Model implemented with Coordinate-ascent Variational Inference (CAVI) and VB Logistic Regression for
+biomarker levels shifted for the latent phenotype. Please note this package is still under development.
+
+# Installation
+
+Prior to analyzing your EHR data, the R package needs to be installed. The
+easiest way to install `VBphenoR` is through CRAN:
+
+``` r
+install.packages("VBphenoR")
+```
+
+`VBphenoR` can also be downloaded and installed via GitHub. The most
+useful if want to download a *specific* version of the package (which
+can be found at <https://github.com/buckleybrian/`VBphenoR`/releases>):
+
+``` r
+devtools::install_github("buckleybrian/VBphenoR@vx.xx.x")
+
+# or 
+
+devtools::install_version("VBphenoR", version = "x.x.x", repos = "http://cran.us.r-project.org")
+```
+
+The latest developmental version of the package can be downloaded and
+installed by running:
+
+``` r
+devtools::install_github("buckleybrian/VBphenoR")
+```
+
+After successful installation, the package must be loaded into the
+working space:
+
+``` r
+library(VBphenoR)
+```
+
+# Usage
+
+See the vignettes for usage instructions and example.
+
+
+# Code of Conduct
+
+Please note that this project is released with a [Contributor Code of
+Conduct](https://github.com/buckleybrian/VBphenoR/blob/main/CODE_OF_CONDUCT.md).
+By participating in this project you agree to abide by its terms.
+
+
+# License
+
+`VBphenoR` is available under the open source [MIT License](https://www.r-project.org/Licenses/MIT)
+
