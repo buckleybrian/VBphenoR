@@ -121,6 +121,14 @@ class analysis for EHR-based phenotyping with large real-world data.
 Frontiers in Applied Mathematics and Statistics 10 (2024): 1302825.
 doi:10.3389/fams.2024.1302825
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/buckleybrian/VBphenoR}
+  \item Report bugs at \url{https://github.com/buckleybrian/VBphenoR/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Brian Buckley \email{brian.buckley.1@ucdconnect.ie} (\href{https://orcid.org/0000-0002-5478-5830}{ORCID}) [copyright holder]
 
