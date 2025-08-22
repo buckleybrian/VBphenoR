@@ -5,54 +5,48 @@
 \title{Run the Variational Bayes patient Phenotyping model}
 \usage{
 runModel(
-  ehr_data,
   biomarkers,
   gmm_X,
-  gmm_k,
+  logit_X,
   gmm_delta = 1e-06,
+  logit_delta = 1e-16,
+  gmm_maxiters = 200,
+  logit_maxiters = 10000,
   gmm_init = "kmeans",
   gmm_initParams = NULL,
-  gmm_maxiters = 200,
   gmm_prior = NULL,
+  logit_prior = NULL,
   gmm_stopIfELBOReverse = FALSE,
   gmm_verbose = FALSE,
-  logit_X,
-  logit_prior,
-  logit_tol = 1e-16,
-  logit_maxiter = 10000,
   logit_verbose = FALSE
 )
 }
 \arguments{
-\item{ehr_data}{The EHR data.}
-
 \item{biomarkers}{The EHR variables that are biomarkers. This is a vector of data column names corresponding to the biomarker variables.}
 
 \item{gmm_X}{The input design matrix. Note the intercept column vector is assumed included.}
 
-\item{gmm_k}{The maximum guess for how many disease components exist.  Minimum is 2 (binary response).}
+\item{logit_X}{The input design matrix. Note the intercept column vector is assumed included.}
 
 \item{gmm_delta}{Change in ELBO that triggers algorithm stopping.}
 
-\item{gmm_init}{Initialize the clusters c("random", "kmeans", proportion R{ > 0 and < 1}).}
-
-\item{gmm_initParams}{Parameters for an initialiser requiring its own parameters e.g. dbscan.}
+\item{logit_delta}{Change in ELBO that triggers algorithm stopping.}
 
 \item{gmm_maxiters}{The maximum iterations for VB GMM.}
 
-\item{gmm_prior}{An informative prior for the GMM}
+\item{logit_maxiters}{The maximum iterations for VB logit.}
+
+\item{gmm_init}{Initialize the clusters c("random", "kmeans", "dbscan").}
+
+\item{gmm_initParams}{Parameters for an initialiser requiring its own parameters e.g. dbscan.}
+
+\item{gmm_prior}{An informative prior for the GMM.}
+
+\item{logit_prior}{An informative prior for the logit.}
 
 \item{gmm_stopIfELBOReverse}{Stop the VB iterations if the ELBO reverses direction.}
 
 \item{gmm_verbose}{Print out information per iteration to track progress in case of long-running experiments.}
-
-\item{logit_X}{The input design matrix. Note the intercept column vector is assumed included.}
-
-\item{logit_prior}{An informative prior for the logit}
-
-\item{logit_tol}{Change in ELBO that triggers algorithm stopping.}
-
-\item{logit_maxiter}{The maximum iterations for VB logit.}
 
 \item{logit_verbose}{Print out information per iteration to track progress in case of long-running experiments.}
 }
@@ -116,8 +110,9 @@ setcolorder(X2, c("Intercept","age","highrisk","CBC","RC"))
 # Need to state what columns are the biomarkers
 biomarkers <- c('CBC', 'RC')
 set.seed(123)
-pheno_result <- runModel(scd_cohort, biomarkers,
-                        gmm_X=X1, gmm_k=k, gmm_init="dbscan",
+
+pheno_result <- runModel(biomarkers,
+                        gmm_X=X1, gmm_init="dbscan",
                         gmm_initParams=initParams,
                         gmm_maxiters=20, gmm_prior=prior_gmm,
                         gmm_stopIfELBOReverse=TRUE,

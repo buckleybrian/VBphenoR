@@ -4,7 +4,7 @@
 \alias{logit_CAVI}
 \title{Variational inference for Bayesian logistic regression using CAVI algorithm}
 \usage{
-logit_CAVI(X, y, prior, tol = 1e-16, maxiter = 10000, verbose = FALSE)
+logit_CAVI(X, y, prior, delta = 1e-16, maxiters = 10000, verbose = FALSE)
 }
 \arguments{
 \item{X}{The input design matrix. Note the intercept column vector is assumed included.}
@@ -13,9 +13,9 @@ logit_CAVI(X, y, prior, tol = 1e-16, maxiter = 10000, verbose = FALSE)
 
 \item{prior}{Prior for the logistic parameters.}
 
-\item{tol}{The ELBO difference tolerance for conversion.}
+\item{delta}{The ELBO difference tolerance for conversion.}
 
-\item{maxiter}{The maximum iterations if convergence is not achieved.}
+\item{maxiters}{The maximum iterations if convergence is not achieved.}
 
 \item{verbose}{A diagnostics flag added by Buckley et al.}
 }

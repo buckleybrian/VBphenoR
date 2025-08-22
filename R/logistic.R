@@ -37,8 +37,8 @@
 #' @param X The input design matrix. Note the intercept column vector is assumed included.
 #' @param y The binary response.
 #' @param prior Prior for the logistic parameters.
-#' @param tol The ELBO difference tolerance for conversion.
-#' @param maxiter The maximum iterations if convergence is not achieved.
+#' @param delta The ELBO difference tolerance for conversion.
+#' @param maxiters The maximum iterations if convergence is not achieved.
 #' @param verbose A diagnostics flag added by Buckley et al.
 #'
 #' @return A list containing:
@@ -54,7 +54,7 @@
 #'
 #' @example man/examples/vb_gmm_example_priors.R
 #'
-logit_CAVI <- function(X, y, prior, tol=1e-16, maxiter=10000, verbose=FALSE){
+logit_CAVI <- function(X, y, prior, delta=1e-16, maxiters=10000, verbose=FALSE){
 
   if (is.null(n <- nrow(X)))
     stop("'X' must be a matrix")
@@ -65,8 +65,8 @@ logit_CAVI <- function(X, y, prior, tol=1e-16, maxiter=10000, verbose=FALSE){
     determinant(X,logarithm = TRUE)$modulus
   }
 
-  lowerbound <- numeric(maxiter) # vector to store ELBO iterations
-  lbdiff <- numeric(maxiter)     # vector to store difference in ELBO iterations
+  lowerbound <- numeric(maxiters) # vector to store ELBO iterations
+  lbdiff <- numeric(maxiters)     # vector to store difference in ELBO iterations
   p    <- ncol(X)
   P    <- solve(prior$Sigma)
   mu   <- prior$mu
@@ -91,9 +91,9 @@ logit_CAVI <- function(X, y, prior, tol=1e-16, maxiter=10000, verbose=FALSE){
                     0.5*sum(diag(P %*% Sigma_vb))
 
   # Initialise a progress bar
-  pb <- txtProgressBar(min = 1, max = maxiter, style = 3)
+  pb <- txtProgressBar(min = 1, max = maxiters, style = 3)
 
-  for(t in 2:maxiter){
+  for(t in 2:maxiters){
     # Print progress
     setTxtProgressBar(pb, t)
 
@@ -118,7 +118,7 @@ logit_CAVI <- function(X, y, prior, tol=1e-16, maxiter=10000, verbose=FALSE){
     if(verbose) print(paste0("[",t,"]: ", lowerbound[t], " : ", lbdiff[t]))
 
 
-    if(abs(lbdiff[t]) < tol) {
+    if(abs(lbdiff[t]) < delta) {
 
       close(pb)
       return(list(mu=matrix(mu_vb,p,1),

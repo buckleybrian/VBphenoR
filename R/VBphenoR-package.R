@@ -101,12 +101,13 @@
 #' # Need to state what columns are the biomarkers
 #' biomarkers <- c('CBC', 'RC')
 #' set.seed(123)
-#' pheno_result <- runModel(scd_cohort, biomarkers,
-#'                         gmm_X=X1, gmm_k=k, gmm_init="dbscan",
+#' pheno_result <- runModel(biomarkers,
+#'                         gmm_X=X1, logit_X=X2,
+#'                         gmm_maxiters=20
+#'                         gmm_init="dbscan",
 #'                         gmm_initParams=initParams,
-#'                         gmm_maxiters=20, gmm_prior=prior_gmm,
-#'                         gmm_stopIfELBOReverse=TRUE,
-#'                         logit_X=X2, logit_prior=prior_logit
+#'                         gmm_prior=prior_gmm, logit_prior=prior_logit,
+#'                         gmm_stopIfELBOReverse=TRUE
 #')
 #'
 #' # Biomarker shifts for phenotype of interest

@@ -17,8 +17,7 @@ easiest way to install `VBphenoR` is through CRAN:
 install.packages("VBphenoR")
 ```
 
-`VBphenoR` can also be downloaded and installed via GitHub. The most
-useful if want to download a *specific* version of the package (which
+`VBphenoR` can also be downloaded and installed via GitHub. This is most useful for downloading a *specific* version of the package (which
 can be found at <https://github.com/buckleybrian/VBphenoR/releases>):
 
 ``` r
@@ -33,7 +32,7 @@ The latest developmental version of the package can be downloaded and
 installed by running:
 
 ``` r
-devtools::install_github("buckleybrian/VBphenoR")
+devtools::install_github("buckleybrian/VBphenoR", build_vignettes = TRUE, build_manual=TRUE)
 ```
 
 After successful installation, the package must be loaded into the

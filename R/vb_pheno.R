@@ -13,21 +13,19 @@ VBphenoR.env <- new.env(parent = emptyenv())
 
 #' Run the Variational Bayes patient Phenotyping model
 #'
-#' @param ehr_data The EHR data.
 #' @param biomarkers The EHR variables that are biomarkers. This is a vector of data column names corresponding to the biomarker variables.
-#' @param gmm_X The input design matrix. Note the intercept column vector is assumed included.
-#' @param gmm_k The maximum guess for how many disease components exist.  Minimum is 2 (binary response).
-#' @param gmm_delta Change in ELBO that triggers algorithm stopping.
-#' @param gmm_init Initialize the clusters c("random", "kmeans", proportion R{ > 0 and < 1}).
-#' @param gmm_initParams Parameters for an initialiser requiring its own parameters e.g. dbscan.
-#' @param gmm_maxiters The maximum iterations for VB GMM.
-#' @param gmm_prior An informative prior for the GMM
-#' @param gmm_stopIfELBOReverse Stop the VB iterations if the ELBO reverses direction.
-#' @param gmm_verbose Print out information per iteration to track progress in case of long-running experiments.
+#' @param gmm_X n x p data matrix (or data frame that will be converted to a matrix).
 #' @param logit_X The input design matrix. Note the intercept column vector is assumed included.
-#' @param logit_prior An informative prior for the logit
-#' @param logit_tol Change in ELBO that triggers algorithm stopping.
-#' @param logit_maxiter The maximum iterations for VB logit.
+#' @param gmm_delta Change in ELBO that triggers algorithm stopping.
+#' @param logit_delta Change in ELBO that triggers algorithm stopping.
+#' @param gmm_maxiters The maximum iterations for VB GMM.
+#' @param logit_maxiters The maximum iterations for VB logit.
+#' @param gmm_init Initialize the clusters c("random", "kmeans", "dbscan").
+#' @param gmm_initParams Parameters for an initialiser requiring its own parameters e.g. dbscan requires 'eps' and 'minPts'.
+#' @param gmm_prior An informative prior for the GMM.
+#' @param logit_prior An informative prior for the logit.
+#' @param gmm_stopIfELBOReverse Stop the VB iterations if the ELBO reverses direction (TRUE or FALSE).
+#' @param gmm_verbose Print out information per iteration to track progress in case of long-running experiments.
 #' @param logit_verbose Print out information per iteration to track progress in case of long-running experiments.
 #'
 #' @return A list containing:
@@ -90,8 +88,9 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #' # Need to state what columns are the biomarkers
 #' biomarkers <- c('CBC', 'RC')
 #' set.seed(123)
-#' pheno_result <- runModel(scd_cohort, biomarkers,
-#'                         gmm_X=X1, gmm_k=k, gmm_init="dbscan",
+#'
+#' pheno_result <- runModel(biomarkers,
+#'                         gmm_X=X1, gmm_init="dbscan",
 #'                         gmm_initParams=initParams,
 #'                         gmm_maxiters=20, gmm_prior=prior_gmm,
 #'                         gmm_stopIfELBOReverse=TRUE,
@@ -102,17 +101,14 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #' pheno_result$biomarker_shift
 #' }
 #'
-runModel <- function(ehr_data, biomarkers,
-                     gmm_X, gmm_k, gmm_delta=1e-6,
-                            gmm_init="kmeans", gmm_initParams=NULL,
-                            gmm_maxiters=200, gmm_prior=NULL,
-                            gmm_stopIfELBOReverse=FALSE,
-                            gmm_verbose=FALSE,
-                     logit_X, logit_prior,
-                            logit_tol=1e-16, logit_maxiter=10000,
-                            logit_verbose=FALSE) {
+runModel <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e-16,
+                    gmm_maxiters=200, logit_maxiters=10000,
+                    gmm_init="kmeans", gmm_initParams=NULL,
+                    gmm_prior=NULL, logit_prior=NULL,
+                    gmm_stopIfELBOReverse=FALSE,
+                    gmm_verbose=FALSE, logit_verbose=FALSE) {
 
-  gmm_result <- vb_gmm_cavi(X=gmm_X, k=gmm_k, delta=gmm_delta,
+  gmm_result <- vb_gmm_cavi(X=gmm_X, k=2, delta=gmm_delta,
                             init=gmm_init, initParams=gmm_initParams,
                             maxiters = gmm_maxiters,
                             prior=gmm_prior,
@@ -141,7 +137,7 @@ runModel <- function(ehr_data, biomarkers,
   y <- as.matrix(y)
 
   logit_result <- logit_CAVI(X=logit_X, y=y, prior=logit_prior,
-                             tol=logit_tol, maxiter=logit_maxiter,
+                             delta=logit_delta, maxiters=logit_maxiters,
                              verbose=logit_verbose)
   coeff <- logit_result$mu
 
