@@ -23,7 +23,7 @@
 #' @param prior Prior for the GMM parameters.
 #' @param delta change in ELBO that triggers algorithm stopping.
 #' @param maxiters maximum iterations to run if delta does not stop the algorithm already.
-#' @param init initialize the clusters c("random", "kmeans", "dbscan", proportion R{ > 0 and < 1}).
+#' @param init initialize the clusters c("random", "kmeans", "dbscan").
 #' @param initParams initialization parameters for dbscan.  NULL if dbscan not selected for init.
 #' @param stopIfELBOReverse stop the run if the ELBO at iteration t is detected to have reversed from iteration t-1.
 #' @param verbose print out information per iteration to track progress in case of long-running experiments.
@@ -212,7 +212,7 @@ vb_gmm_cavi <- function(X, k,
 #' @param k guess for the number of mixture components.
 #' @param n number of rows in X.
 #' @param prior Prior for the GMM parameters.
-#' @param init initialize the clusters c("random", "kmeans", "dbscan", proportion R{ > 0 and < 1})
+#' @param init initialize the clusters c("random", "kmeans", "dbscan")
 #' @param initParams initialization parameters for dbscan.  NULL if dbscan not selected for init.
 #'
 #' @return A list of the initially fitted posterior Q family
@@ -263,7 +263,6 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
       dropz <- ztab$z[1:(nrow(ztab)-k)]
       z[z %in% dropz] <- ztab[nrow(ztab),]$z
     }
-
   } else if(init == "random") {
     # Random assignment of clusters - this will evenly distribute k clusters across the observations
     z <- round(as.integer(runif(n,min=1,max=k+1)))

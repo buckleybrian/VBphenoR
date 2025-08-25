@@ -361,7 +361,7 @@ Figure 6 is a single run using *DBSCAN* as the initialiser for the highly unbala
 
 ```{r, echo=FALSE, out.width="90%", out.height="30%", fig.show='hold', fig.align='center', fig.cap="Figure 6: Posterior clustering of SCD Cohort using *DBSCAN* as initialiser using k=2. The SCD cluster is found by the model, albeit with some misclassified non-SCD observations on the boundary with the majority class."}
 
-knitr::include_graphics(c("gmm_DBSCAN_k_2.jpg"))
+knitr::include_graphics(c("gmm_dbscan_k_2.jpg"))
 ```
 
 

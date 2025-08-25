@@ -6,7 +6,7 @@
 # Hubbard, Rebecca A., et al. "A Bayesian latent class approach for EHR‐based
 # phenotyping." Statistics in Medicine 38.1 (2019): 74-87.
 #
-# Brian Buckley December 2024
+# Brian Buckley August 2025
 # ------------------------------------------------------------------------------
 
 VBphenoR.env <- new.env(parent = emptyenv())

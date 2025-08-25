@@ -29,7 +29,7 @@ vb_gmm_cavi(
 
 \item{maxiters}{maximum iterations to run if delta does not stop the algorithm already.}
 
-\item{init}{initialize the clusters c("random", "kmeans", "dbscan", proportion R{ > 0 and < 1}).}
+\item{init}{initialize the clusters c("random", "kmeans", "dbscan").}
 
 \item{initParams}{initialization parameters for dbscan.  NULL if dbscan not selected for init.}
 

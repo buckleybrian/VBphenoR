@@ -15,7 +15,7 @@ VB_GMM_Init(X, k, n, prior, init, initParams)
 
 \item{prior}{Prior for the GMM parameters.}
 
-\item{init}{initialize the clusters c("random", "kmeans", "dbscan", proportion R{ > 0 and < 1})}
+\item{init}{initialize the clusters c("random", "kmeans", "dbscan")}
 
 \item{initParams}{initialization parameters for dbscan.  NULL if dbscan not selected for init.}
 }

@@ -24,7 +24,7 @@ runModel(
 \arguments{
 \item{biomarkers}{The EHR variables that are biomarkers. This is a vector of data column names corresponding to the biomarker variables.}
 
-\item{gmm_X}{The input design matrix. Note the intercept column vector is assumed included.}
+\item{gmm_X}{n x p data matrix (or data frame that will be converted to a matrix).}
 
 \item{logit_X}{The input design matrix. Note the intercept column vector is assumed included.}
 
@@ -38,13 +38,13 @@ runModel(
 
 \item{gmm_init}{Initialize the clusters c("random", "kmeans", "dbscan").}
 
-\item{gmm_initParams}{Parameters for an initialiser requiring its own parameters e.g. dbscan.}
+\item{gmm_initParams}{Parameters for an initialiser requiring its own parameters e.g. dbscan requires 'eps' and 'minPts'.}
 
 \item{gmm_prior}{An informative prior for the GMM.}
 
 \item{logit_prior}{An informative prior for the logit.}
 
-\item{gmm_stopIfELBOReverse}{Stop the VB iterations if the ELBO reverses direction.}
+\item{gmm_stopIfELBOReverse}{Stop the VB iterations if the ELBO reverses direction (TRUE or FALSE).}
 
 \item{gmm_verbose}{Print out information per iteration to track progress in case of long-running experiments.}
 
