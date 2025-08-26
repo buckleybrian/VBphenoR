@@ -2,10 +2,10 @@
 #'
 #' VBphenoR is a library and R package for a variational Bayes approach to clinical patient phenotyping using EHR data.
 #'
-#' @rdname aaa-VBphenoR-package
-#' @name vbPheno-package
+#' @rdname VBphenoR
+#' @name VBphenoR-package
 #' @keywords internal
-#' @aliases VBphenoR-package VBphenoR
+#' @aliases VBphenoR VBphenoR
 #'
 #' @section Introduction:
 #' The main goal of the VBphenoR library is to provide a comprehensive variational
@@ -16,7 +16,7 @@
 #' EHR clinical studies due to the number of observations and variables. We explain in
 #' more detail in our paper, Buckley et al. (2024).
 #'
-#' @section VB Phenotyping algorithm:
+#' @section VB Phenotype algorithm:
 #' The implementation of VBphenoR performs the following steps:
 #'
 #' 1. Run a variational Gaussian Mixture Model using EHR-derived patient characteristics

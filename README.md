@@ -44,7 +44,7 @@ library(VBphenoR)
 
 # Usage
 
-See the vignettes for usage instructions and example.
+See the [vignettes](https://buckleybrian.github.io/VBphenoR/articles/VBpheno.html) for usage instructions and example.
 
 
 # License
