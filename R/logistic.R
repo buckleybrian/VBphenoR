@@ -38,8 +38,9 @@
 #' @param y The binary response.
 #' @param prior Prior for the logistic parameters.
 #' @param delta The ELBO difference tolerance for conversion.
-#' @param maxiters The maximum iterations if convergence is not achieved.
-#' @param verbose A diagnostics flag added by Buckley et al.
+#' @param maxiters The maximum iterations to run if convergence is not achieved.
+#' @param verbose A diagnostics flag (off by default).
+#' @param progressbar A visual progress bar to indicate iterations (on by default).
 #'
 #' @return A list containing:
 #' * error - An error message if convergence failed or the number of iterations to achieve convergence.
@@ -54,7 +55,13 @@
 #'
 #' @example man/examples/vb_gmm_example_priors.R
 #'
-logit_CAVI <- function(X, y, prior, delta=1e-16, maxiters=10000, verbose=FALSE){
+logit_CAVI <- function(X,
+                       y,
+                       prior,
+                       delta=1e-16,
+                       maxiters=10000,
+                       verbose=FALSE,
+                       progressbar=TRUE){
 
   if (is.null(n <- nrow(X)))
     stop("'X' must be a matrix")
@@ -90,12 +97,14 @@ logit_CAVI <- function(X, y, prior, delta=1e-16, maxiters=10000, verbose=FALSE){
                     sum((y-0.5)*eta +log(plogis(xi)) - 0.5*xi) -
                     0.5*sum(diag(P %*% Sigma_vb))
 
-  # Initialise a progress bar
-  pb <- txtProgressBar(min = 1, max = maxiters, style = 3)
+  if(progressbar==TRUE) {
+    # Initialise a progress bar
+    pb <- txtProgressBar(min = 1, max = maxiters, style = 3)
+  }
 
   for(t in 2:maxiters){
-    # Print progress
-    setTxtProgressBar(pb, t)
+
+    if(progressbar==TRUE) setTxtProgressBar(pb, t)
 
     P_vb       <- crossprod(X*omega,X) + P
     Sigma_vb   <- solve(P_vb)
@@ -112,15 +121,13 @@ logit_CAVI <- function(X, y, prior, delta=1e-16, maxiters=10000, verbose=FALSE){
                       sum((y-0.5)*eta +log(plogis(xi)) - 0.5*xi) -
                       0.5*sum(diag(P %*% Sigma_vb))
 
-    # BB added the difference for diagnostics
     lbdiff[t] <- lowerbound[t] - lowerbound[t-1]
 
     if(verbose) print(paste0("[",t,"]: ", lowerbound[t], " : ", lbdiff[t]))
 
-
     if(abs(lbdiff[t]) < delta) {
-
-      close(pb)
+      if(progressbar==TRUE) close(pb)
+      if(verbose) print(paste0("The algorithm has converged in ", t, " iterations"))
       return(list(mu=matrix(mu_vb,p,1),
                   Sigma=matrix(Sigma_vb,p,p),
                   Convergence=cbind(Iteration=(1:t)-1, Lowerbound=lowerbound[1:t]),
@@ -128,9 +135,8 @@ logit_CAVI <- function(X, y, prior, delta=1e-16, maxiters=10000, verbose=FALSE){
                   xi=xi))
     }
   }
-  close(pb)
-
-  print("The algorithm has not reached convergence")
+  if(progressbar==TRUE) close(pb)
+  if(verbose) print("The algorithm has not reached convergence")
 
   return(list(error="The algorithm has not reached convergence",
               mu=matrix(mu_vb,p,1),

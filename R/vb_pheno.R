@@ -11,7 +11,7 @@
 
 VBphenoR.env <- new.env(parent = emptyenv())
 
-#' Run the Variational Bayes patient Phenotyping model
+#' Run the Variational Bayes patient phenotyping model
 #'
 #' @param biomarkers The EHR variables that are biomarkers. This is a vector of data column names corresponding to the biomarker variables.
 #' @param gmm_X n x p data matrix (or data frame that will be converted to a matrix).
@@ -27,6 +27,8 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #' @param gmm_stopIfELBOReverse Stop the VB iterations if the ELBO reverses direction (TRUE or FALSE).
 #' @param gmm_verbose Print out information per iteration to track progress in case of long-running experiments.
 #' @param logit_verbose Print out information per iteration to track progress in case of long-running experiments.
+#' @param gmm_progressbar Show a progressbar driven by the GMM variational iterations.
+#' @param logit_progressbar Show a progressbar driven by the logit variational iterations.
 #'
 #' @return A list containing:
 #' * prevalence - The mean probability of latent phenotype given the data and priors.
@@ -39,9 +41,10 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #' @importFrom data.table :=
 #' @importFrom data.table as.data.table
 #' @import knitr
+#' @import ggplot2
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' ##Example 1: Use the internal Sickle Cell Disease data to find the rare
 #' ##           phenotype.  SCD is extremely rare so we use DBSCAN to initialise
 #' ##           the VB GMM. We also use an informative prior for the mixing
@@ -89,7 +92,7 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #' biomarkers <- c('CBC', 'RC')
 #' set.seed(123)
 #'
-#' pheno_result <- runModel(biomarkers,
+#' pheno_result <- run_Model(biomarkers,
 #'                         gmm_X=X1, gmm_init="dbscan",
 #'                         gmm_initParams=initParams,
 #'                         gmm_maxiters=20, gmm_prior=prior_gmm,
@@ -97,23 +100,24 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #'                         logit_X=X2, logit_prior=prior_logit
 #')
 #'
-#' # Biomarker shifts for phenotype of interest
-#' pheno_result$biomarker_shift
+#' # S3 print method
+#' print(pheno_result)
 #' }
 #'
-runModel <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e-16,
+run_Model <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e-16,
                     gmm_maxiters=200, logit_maxiters=10000,
                     gmm_init="kmeans", gmm_initParams=NULL,
                     gmm_prior=NULL, logit_prior=NULL,
                     gmm_stopIfELBOReverse=FALSE,
-                    gmm_verbose=FALSE, logit_verbose=FALSE) {
+                    gmm_verbose=FALSE, logit_verbose=FALSE,
+                    gmm_progressbar=FALSE, logit_progressbar=FALSE) {
 
   gmm_result <- vb_gmm_cavi(X=gmm_X, k=2, delta=gmm_delta,
                             init=gmm_init, initParams=gmm_initParams,
                             maxiters = gmm_maxiters,
                             prior=gmm_prior,
                             stopIfELBOReverse=gmm_stopIfELBOReverse,
-                            verbose=gmm_verbose)
+                            verbose=gmm_verbose, progressbar=gmm_progressbar)
 
   # Set 1,2 to 0,1 where 0 is the main class
   z <- gmm_result$z_post
@@ -138,7 +142,7 @@ runModel <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e-
 
   logit_result <- logit_CAVI(X=logit_X, y=y, prior=logit_prior,
                              delta=logit_delta, maxiters=logit_maxiters,
-                             verbose=logit_verbose)
+                             verbose=logit_verbose, progressbar=logit_progressbar)
   coeff <- logit_result$mu
 
   # Add the log odds and probability of latent phenotype
@@ -164,8 +168,37 @@ runModel <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e-
   }
   biomarker_shift <- data.frame(biomarker=biomarkers, shift=unlist(bio_shift))
 
-  return(list(prevalence=prevalence,
-              biomarker_shift=biomarker_shift,
-              gmm=gmm_result,
-              logit=logit_result))
+  structure(
+    list(
+      prevalence=prevalence,
+      biomarker_shift=biomarker_shift,
+      gmm=gmm_result,
+      logit=logit_result
+    ),
+    class = "vbphenor"
+  )
+}
+
+#' @export
+print.vbphenor <- function(x, ...) {
+  writeLines(c(
+    paste0("VBphenoR phenotyping results."),
+    paste0("-----------------------------")
+  ))
+
+  cat("\n")
+
+  writeLines(c(
+    paste0("EHR data with ",formatC(length(x$gmm$z_post), big.mark=',')," rows")
+  ))
+
+  cat("\n")
+
+  writeLines(c(
+    paste0("Prevalence = ",round(x$prevalence,3),"% in these data"),
+    paste0("Biomarker shift for patients with the phenotype of interest:")
+  ))
+
+  bio <- data.frame(lapply(x$biomarker_shift, function(y) if(is.numeric(y)) round(y, 2) else y))
+  print(bio,row.names=FALSE)
 }

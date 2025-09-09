@@ -6,7 +6,7 @@
 #
 # Pattern Recognition and Machine Learning by Christopher M. Bishop,
 # 2006 (Section 10.2)
-# Based on Matlab code for above by Mo Chen (2016),
+# Adapted from Matlab code for above by Mo Chen (2016),
 # Variational Bayesian Inference for Gaussian Mixture Model
 #
 # Brian Buckley December 2024
@@ -29,6 +29,7 @@
 #' @param verbose print out information per iteration to track progress in case of long-running experiments.
 #' @param logDiagnostics log detailed diagnostics.  If TRUE, a diagnostics RDS file will be created using the path specified in logFilename.
 #' @param logFilename the filename of the diagnostics log.
+#' @param progressbar A visual progress bar to indicate iterations (on by default).
 #'
 #' @return A list containing:
 #' * error - An error message if convergence failed or the number of iterations to achieve convergence.
@@ -68,7 +69,8 @@ vb_gmm_cavi <- function(X, k,
                    stopIfELBOReverse=FALSE,
                    verbose=FALSE,
                    logDiagnostics=FALSE,
-                   logFilename="vb_gmm_log.txt") {
+                   logFilename="vb_gmm_log.txt",
+                   progressbar=TRUE) {
 
   # Cannot have an empty data
   if (is.null(n <- nrow(X)))
@@ -130,15 +132,16 @@ vb_gmm_cavi <- function(X, k,
   converge <- FALSE                        # Indicator when converged
   itr <- 1                                 # Iteration counter
 
-  # Initialise a progress bar
-  pb <- txtProgressBar(title = "VB GMM", min = 1, max = maxiters, style = 3)
+  if(progressbar==TRUE) {
+    # Initialise a progress bar
+    pb <- txtProgressBar(title = "VB GMM", min = 1, max = maxiters, style = 3)
+  }
 
   while(!converge & itr <= maxiters) {
 
     itr <- itr + 1                         # Increment here so that we can compare with first -Inf
 
-    # Print progress
-    setTxtProgressBar(pb, itr)
+    if(progressbar==TRUE) setTxtProgressBar(pb, itr)
 
     q_post  <- VB_GMM_Expectation(X, n, q_post)
     if(logDiagnostics) {
@@ -183,7 +186,7 @@ vb_gmm_cavi <- function(X, k,
       }
     }
   }
-  close(pb)
+  if(progressbar==TRUE) close(pb)
 
   if(logDiagnostics) {
     logDiagnostics(filename=logFilename, logs=logs)
@@ -194,15 +197,15 @@ vb_gmm_cavi <- function(X, k,
   elbo_d <- lbd[c(2,2:itr)]
   z_post <- max.col(q_post$R,ties.method="random")
 
-  error <- ifelse(!converge,
+  conv <- ifelse(!converge,
                   ifelse(elbo_reversed,
                          paste0("The algorithm has not reached convergence after ",itr," iterations.  The ELBO reversed direction."),
                          paste0("The algorithm has not reached convergence after ",itr," iterations.")
                   ),
-                  paste0("Algorithm converged after ",itr," iterations.")
+                  paste0("The algorithm converged after ",itr," iterations.")
   )
 
-  return(list(error=error,z_post=z_post, q_post=q_post, elbo=elbo, elbo_d=elbo_d))
+  return(list(conv=conv,z_post=z_post, q_post=q_post, elbo=elbo, elbo_d=elbo_d))
 }
 
 

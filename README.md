@@ -1,5 +1,5 @@
 # VBphenoR
-`VBphenoR`: Latent Patient Phenotyping from Electronic Health Records (EHR) using Variational Bayes
+Variational Bayes for Latent Patient Phenotypes in Electronic Health Records (EHR)
 
 # Overview
 

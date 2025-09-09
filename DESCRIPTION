@@ -1,5 +1,5 @@
 Package: VBphenoR
-Title: Identification of Latent Patient Phenotype from Electronic Health Records Data using Variational Bayes Methods
+Title: Variational Bayes for Latent Patient Phenotypes in EHR
 Version: 1.0.0
 Authors@R: c(
     person("Brian", "Buckley", , "brian.buckley.1@ucdconnect.ie", role = c("aut", "cre", "cph"),
@@ -9,7 +9,7 @@ Authors@R: c(
     person("Marie", "Galligan", , "marie.galligan@ucd.ie", role = c("aut"),
            comment = "Co-author")
   )
-Description: Identification of Latent Patient Phenotype from Electronic Health Records Data using Variational Bayes Gaussian Mixture Model for Latent Class Analysis and Variational Bayes regression for Biomarker level shifts, both implemented by Coordinate Ascent Variational Inference algorithms.  Variational methods are used to enable Bayesian analysis of very large Electronic Health Records data.
+Description: Identification of Latent Patient Phenotype from Electronic Health Records Data using Variational Bayes Gaussian Mixture Model for Latent Class Analysis and Variational Bayes regression for Biomarker level shifts, both implemented by Coordinate Ascent Variational Inference algorithms.  Variational methods are used to enable Bayesian analysis of very large Electronic Health Records data. authors (2006, ISBN:9780-387-31073-2). authors (2018, doi:<10.1002/sim.7953>).
 License: MIT + file LICENCE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -24,7 +24,8 @@ Imports:
     knitr,
     utils,
     dbscan,
-    data.table
+    data.table,
+    ggplot2
 Depends: 
     R (>= 3.5.0)
 LazyData: true

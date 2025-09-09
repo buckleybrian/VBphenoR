@@ -17,7 +17,7 @@ test_that("Simple logit call with flat prior works ", {
                       mean(scd_cohort$RC)),
                  Sigma=diag(1,5))
 
-  results <- logit_CAVI(X, y, prior, delta=1e-16, maxiters=100, verbose=FALSE)
+  results <- logit_CAVI(X, y, prior, delta=1e-16, maxiters=100)
   expect_equal(length(results$mu), 5)
   expect_equal(length(results$xi), 1000)
 })
@@ -42,6 +42,6 @@ test_that("NA values in data are rejected ", {
                      mean(scd_cohort$RC)),
                 Sigma=diag(1,5))
 
-  expect_error(results <- logit_CAVI(X, y, prior, delta=1e-16, maxiters=100, verbose=FALSE))
+  expect_error(results <- logit_CAVI(X, y, prior, delta=1e-16, maxiters=100))
 })
 
