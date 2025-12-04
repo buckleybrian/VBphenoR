@@ -27,8 +27,7 @@ VBphenoR.env <- new.env(parent = emptyenv())
 #' @param gmm_stopIfELBOReverse Stop the VB iterations if the ELBO reverses direction (TRUE or FALSE).
 #' @param gmm_verbose Print out information per iteration to track progress in case of long-running experiments.
 #' @param logit_verbose Print out information per iteration to track progress in case of long-running experiments.
-#' @param gmm_progressbar Show a progressbar driven by the GMM variational iterations.
-#' @param logit_progressbar Show a progressbar driven by the logit variational iterations.
+#' @param progressbar Show a progressbar driven by the GMM & logit variational iterations.
 #'
 #' @return A list containing:
 #' * prevalence - The mean probability of latent phenotype given the data and priors.
@@ -110,14 +109,14 @@ run_Model <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e
                     gmm_prior=NULL, logit_prior=NULL,
                     gmm_stopIfELBOReverse=FALSE,
                     gmm_verbose=FALSE, logit_verbose=FALSE,
-                    gmm_progressbar=FALSE, logit_progressbar=FALSE) {
+                    progressbar=FALSE) {
 
   gmm_result <- vb_gmm_cavi(X=gmm_X, k=2, delta=gmm_delta,
                             init=gmm_init, initParams=gmm_initParams,
                             maxiters = gmm_maxiters,
                             prior=gmm_prior,
                             stopIfELBOReverse=gmm_stopIfELBOReverse,
-                            verbose=gmm_verbose, progressbar=gmm_progressbar)
+                            verbose=gmm_verbose, progressbar=progressbar)
 
   # Set 1,2 to 0,1 where 0 is the main class
   z <- gmm_result$z_post
@@ -133,7 +132,7 @@ run_Model <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e
   }
 
   # Now Run regression model for shift in biomarkers using the GMM cluster
-  # assignments as the response
+  # assignments as the response (either using binary z or soft probabilities)
   y <- z
   y <- as.numeric(y)
 
@@ -142,7 +141,7 @@ run_Model <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e
 
   logit_result <- logit_CAVI(X=logit_X, y=y, prior=logit_prior,
                              delta=logit_delta, maxiters=logit_maxiters,
-                             verbose=logit_verbose, progressbar=logit_progressbar)
+                             verbose=logit_verbose, progressbar=progressbar)
   coeff <- logit_result$mu
 
   # Add the log odds and probability of latent phenotype
@@ -152,7 +151,7 @@ run_Model <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e
   logit_dt[,log_odds:=sum(coeff * .SD), by = 1:nrow(logit_dt)]
   logit_dt[,prob:=exp(log_odds)/(1 + exp(log_odds))]
 
-  # Mean probability of latent phenotype in the EHR cohort
+  # Mean probability of latent phenotype in the EHR cohort (as a %)
   prevalence <- mean(logit_dt$prob) * 100
 
   # Shift in Biomarkers for latent phenotype

@@ -234,7 +234,7 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
     q_post$alpha <- prior$alpha
   }
 
-  # pseudo-observations for the Gaussian-inverse Wishart distribution
+  # Governs the proportionality of the precision, Λ and influences the variance of μ.
   if(length(prior$beta) == 1) {
     q_post$beta <- rep(prior$beta, k)
   } else {
