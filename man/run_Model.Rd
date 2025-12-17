@@ -19,8 +19,7 @@ run_Model(
   gmm_stopIfELBOReverse = FALSE,
   gmm_verbose = FALSE,
   logit_verbose = FALSE,
-  gmm_progressbar = FALSE,
-  logit_progressbar = FALSE
+  progressbar = FALSE
 )
 }
 \arguments{
@@ -52,9 +51,7 @@ run_Model(
 
 \item{logit_verbose}{Print out information per iteration to track progress in case of long-running experiments.}
 
-\item{gmm_progressbar}{Show a progressbar driven by the GMM variational iterations.}
-
-\item{logit_progressbar}{Show a progressbar driven by the logit variational iterations.}
+\item{progressbar}{Show a progressbar driven by the GMM & logit variational iterations.}
 }
 \value{
 A list containing:

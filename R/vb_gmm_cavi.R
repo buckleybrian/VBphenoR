@@ -36,7 +36,7 @@
 #' * z_post - A vector of posterior cluster mappings.
 #' * q_post - A list of the fitted posterior Q family. q_post includes:
 #'   * alpha - The Dirichlet prior for the mixing coefficient
-#'   * beta - The proportionality of the precision for the Normal-Wishart prior
+#'   * lambda - The proportionality of the precision for the Normal-Wishart prior (called 'beta' in Bishop)
 #'   * m - The mean vector for the Normal part of the Normal-Wishart prior
 #'   * v - The degrees of freedom of the Wishart gamma ensuring it is well defined
 #'   * U - The W hyperparameter of the Wishart conjugate prior for the precision of the mixtures. k sets of D x D symmetric, positive definite matrices.
@@ -98,7 +98,7 @@ vb_gmm_cavi <- function(X, k,
   # Initialise with uninformative priors.  Overwrite hyper-parameters where set
   this_prior <- list(
     alpha = 1,
-    beta = 1,
+    lambda = 1,
     m = matrix(rowMeans(X),ncol=1),
     v = p+1,
     W = diag(1,p),
@@ -235,10 +235,10 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
   }
 
   # Governs the proportionality of the precision, Λ and influences the variance of μ.
-  if(length(prior$beta) == 1) {
-    q_post$beta <- rep(prior$beta, k)
+  if(length(prior$lambda) == 1) {
+    q_post$lambda <- rep(prior$lambda, k)
   } else {
-    q_post$beta <- prior$beta
+    q_post$lambda <- prior$lambda
   }
 
   q_post$m     <- rep(prior$m, k)
@@ -258,7 +258,7 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
     z <- dbs$cluster
 
     # Align DBSCAN clusters with k by assigning smallest clusters to highest cluster
-    # - replace when HDSCAN solution done
+    # - replace if/when HDSCAN solution completes in reasonable time
     if(length(unique(z)) > k) {
       ztab <- as.data.frame(table(z))
       ztab$z <- as.character(ztab$z)
@@ -294,7 +294,7 @@ VB_GMM_Init <- function(X, k, n, prior, init, initParams) {
 VB_GMM_Expectation <- function(X, n, q_post) {
 
   alpha <- q_post$alpha
-  beta  <- q_post$beta
+  lambda <- q_post$lambda
   m     <- q_post$m
   v     <- q_post$v
   U     <- q_post$U
@@ -306,7 +306,7 @@ VB_GMM_Expectation <- function(X, n, q_post) {
   EQ <- array(0, dim=c(n,k))
   for(i in 1:k) {
     Q      <- solve(t(U[,,i]), m_bsxfun("-", X, m[,i]))       # Equations in Bishop, 2006 (Section 10.2)
-    EQ[,i] <- p/beta[i] + v[i] * pracma::dot(Q,Q)                                  # 10.64
+    EQ[,i] <- p/lambda[i] + v[i] * pracma::dot(Q,Q)                                  # 10.64
   }
   vp         <- m_bsxfun("-", matrix(rep(v+1, p),nrow=p,byrow=TRUE), as.matrix(1:p))
   ElogLambda <- colSums(digamma(vp)) + p*log(2) + logW                             # 10.65
@@ -334,8 +334,8 @@ VB_GMM_Expectation <- function(X, n, q_post) {
 VB_GMM_Maximisation <- function(X, q_post, prior) {
 
   alpha0 <- prior$alpha
-  # beta0  <- prior$beta
-  beta0  <- prior$beta[1]
+  # lambda0  <- prior$lambda
+  lambda0  <- prior$lambda[1]
   m0     <- prior$m
   v0     <- prior$v
   W0     <- prior$W
@@ -343,10 +343,10 @@ VB_GMM_Maximisation <- function(X, q_post, prior) {
                                                           # Equations in Bishop, 2006 (Section 10.2)
   nk <- colSums(R)                                        # 10.51
   alpha <- alpha0 + nk                                    # 10.58
-  beta <- beta0 + nk                                      # 10.60
+  lambda <- lambda0 + nk                                  # 10.60
 
-  m <- m_bsxfun("+", X %*% R, beta0 * m0)
-  m <- m_bsxfun("*", m, 1/beta)                           # 10.61
+  m <- m_bsxfun("+", X %*% R, lambda0 * m0)
+  m <- m_bsxfun("*", m, 1/lambda)                         # 10.61
   v <- v0 + nk                                            # 10.63
 
   k <- ncol(m)
@@ -359,13 +359,13 @@ VB_GMM_Maximisation <- function(X, q_post, prior) {
     Xm <- m_bsxfun("-", X, m[,i])
     Xm <- m_bsxfun("*", Xm, r[i,])
     m0m <- m0-m[,i]
-    W <- W0+Xm %*% t(Xm) + beta0*(m0m %*% t(m0m))         # 10.62 (equivalent)
+    W <- W0+Xm %*% t(Xm) + lambda0*(m0m %*% t(m0m))       # 10.62 (equivalent)
     U[,,i] <- chol(W)
     logW[1,i] = -2*sum(log(diag(U[,,i])))
   }
 
   q_post$alpha <- alpha
-  q_post$beta <- beta
+  q_post$lambda <- lambda
   q_post$m     <- m
   q_post$v     <- v
   q_post$U     <- U
@@ -388,11 +388,11 @@ VB_GMM_Maximisation <- function(X, q_post, prior) {
 VB_GMM_ELBO <- function(X, p, n, q_post, prior) {
 
   alpha0 <- prior$alpha
-  beta0  <- prior$beta
+  lambda0  <- prior$lambda
   v0     <- prior$v
   logW0  <- prior$logW
   alpha  <- q_post$alpha
-  beta   <- q_post$beta
+  lambda   <- q_post$lambda
   v      <- q_post$v
   logW   <- q_post$logW
   R      <- q_post$R
@@ -404,12 +404,12 @@ VB_GMM_ELBO <- function(X, p, n, q_post, prior) {
   Eqz  <- as.numeric(pracma::dot(R, logR))
   Eqz  <- mean(Eqz) # There is one Eqz value per k
   Eqpi <- as.numeric(lgamma(sum(alpha)) - sum(lgamma(alpha)))
-  Eqmu <- as.numeric(0.5 * p * sum(log(beta)))
+  Eqmu <- as.numeric(0.5 * p * sum(log(lambda)))
   Eqlambda <- as.numeric(sum(-0.5 * v * (logW + p * log(2)) -
                             matrix(CholWishart::lmvgamma(0.5 * v, p),nrow=1) ))
 
   Eppi <- as.numeric(lgamma(k*alpha0) - k*(lgamma(alpha0)))
-  Epmu <- as.numeric(0.5 * p * k * log(beta0))
+  Epmu <- as.numeric(0.5 * p * k * log(lambda0))
   Eplambda <- as.numeric(k * (-0.5 * v0 * (logW0 + p * log(2)) -
                             matrix(CholWishart::lmvgamma(0.5 * v0, p),nrow=1) ))
 

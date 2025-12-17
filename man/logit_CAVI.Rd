@@ -45,10 +45,11 @@ Variational inference for Bayesian logistic regression using CAVI algorithm
 }
 \examples{
 \donttest{
-
   # Use Old Faithful data to show the effect of VB GMM Priors,
-  # stopping on ELBO reverse parameter or delta threshold
+  # stopping on delta threshold
   # ------------------------------------------------------------------------------
+
+  require(ggplot2)
 
   gen_path <- tempdir()
   data("faithful")
@@ -72,10 +73,6 @@ Variational inference for Bayesian logistic regression using CAVI algorithm
   #'
   #' @returns
   #' @importFrom ggplot2 ggplot
-  #' @importFrom ggplot2 aes
-  #' @importFrom ggplot2 geom_point
-  #' @importFrom ggplot2 scale_color_discrete
-  #' @importFrom ggplot2 stat_ellipse
   #' @export
 
   do_plots <- function(i, gmm_result, var_name, grid, fig_path) {
@@ -89,73 +86,115 @@ Variational inference for Bayesian logistic regression using CAVI algorithm
     # Plot the posterior mixture groups
     # ---------------------------------------------------------------------------
     cols <- c("#1170AA", "#55AD89", "#EF6F6A", "#D3A333", "#5FEFE8", "#11F444")
-    p <- ggplot2::ggplot() +
-      ggplot2::geom_point(dd, mapping=ggplot2::aes(x=eruptions, y=waiting, color=cluster)) +
-      ggplot2::scale_color_discrete(cols, guide = 'none') +
-      ggplot2::geom_point(mu, mapping=ggplot2::aes(x = eruptions, y = waiting), color="black",
+    p <- ggplot() +
+      geom_point(dd, mapping=aes(x=eruptions, y=waiting, color=cluster)) +
+      scale_color_discrete(cols, guide = 'none') +
+      geom_point(mu, mapping=aes(x = eruptions, y = waiting), color="black",
                  pch=7, size=2) +
-      ggplot2::stat_ellipse(dd, geom="polygon",
-                   mapping=ggplot2::aes(x=eruptions, y=waiting, fill=cluster),
+      stat_ellipse(dd, geom="polygon",
+                   mapping=aes(x=eruptions, y=waiting, fill=cluster),
                    alpha=0.25)
 
-    grids <- paste((grid[,i]), collapse = "_")
-    ggplot2::ggsave(filename=paste0(var_name,"_",grids,".png"), plot=p, path=fig_path,
-           width=12, height=12, units="cm", dpi=600, create.dir = TRUE)
+    grids <- paste((grid[i,]), collapse = "_")
+    ggsave(filename=paste0(var_name,"_",grids,".eps"), plot=p, path=fig_path,
+           width=12, height=12, units="cm", dpi=600, create.dir = TRUE,
+           device=cairo_ps)
+
+    return(p)
   }
 
   # ------------------------------------------------------------------------------
-  # Dirichlet alpha
+  # Dirichlet alpha - same α value for each component and k=6.
   # ------------------------------------------------------------------------------
-  alpha_grid <- data.frame(c1=c(1,1,1,1),
-                           c2=c(1,92,183,183),
-                           c3=c(183,92,183,183))
+  alpha_grid <- data.frame(x=c(1,30,70),
+                           y=c(271,237,202))
   init <- "kmeans"
 
-  for (i in 1:ncol(alpha_grid)) {
+  z <- vector(mode="list", length=nrow(alpha_grid))
+  plots <- vector(mode="list", length=nrow(alpha_grid))
+
+  for (i in 1:nrow(alpha_grid)) {
     prior <- list(
-      alpha = as.integer(alpha_grid[,i]) # set most of the weight on one component
+      alpha = as.integer(alpha_grid[i,])
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-8, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=6, prior=prior, delta=1e-9, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
-    do_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
+
+    z[[i]] <- table(gmm_result$z_post)
+    plots[[i]] <- do_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
   }
 
   # ------------------------------------------------------------------------------
-  # Normal-Wishart beta for precision proportionality
+  # Dirichlet alpha - different α value for each component.
   # ------------------------------------------------------------------------------
-  beta_grid <- data.frame(c1=c(0.1,0.1,0.1,0.1),
-                          c2=c(0.9,0.9,0.9,0.9))
+  alpha_grid <- data.frame(c1=c(1,1,183),
+                           c2=c(1,92,92),
+                           c3=c(1,183,198),
+                           c4=c(1,183,50))
   init <- "kmeans"
 
-  for (i in 1:ncol(beta_grid)) {
+  z <- vector(mode="list", length=nrow(alpha_grid))
+  plots <- vector(mode="list", length=nrow(alpha_grid))
+
+  for (i in 1:nrow(alpha_grid)) {
     prior <- list(
-      beta = as.numeric(beta_grid[,i])
+      alpha = as.integer(alpha_grid[i,]) # set most of the weight on one component
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-8, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
-    do_plots(i, gmm_result, "beta", beta_grid, gen_path)
+    z[[i]] <- table(gmm_result$z_post)
+    plots[[i]] <- do_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
   }
 
   # ------------------------------------------------------------------------------
-  # Normal-Wishart W0 (assuming variance matrix) & logW
+  # Normal-Wishart lambda for precision proportionality
+  # ------------------------------------------------------------------------------
+  lambda_grid <- data.frame(c1=c(0.1,0.9),
+                            c2=c(0.1,0.9),
+                            c3=c(0.1,0.9),
+                            c4=c(0.1,0.9))
+  init <- "kmeans"
+
+  z <- vector(mode="list", length=nrow(lambda_grid))
+  plots <- vector(mode="list", length=nrow(lambda_grid))
+
+  for (i in 1:nrow(lambda_grid)) {
+    prior <- list(
+      beta = as.numeric(lambda_grid[i,])
+    )
+
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
+                              verbose=FALSE, logDiagnostics=FALSE)
+    z[[i]] <- table(gmm_result$z_post)
+    plots[[i]] <- do_plots(i, gmm_result, "lambda", lambda_grid, gen_path)
+  }
+
+  # ------------------------------------------------------------------------------
+  # Normal-Wishart W0 (assuming simplest-case diagonal covariance matrix) & logW
   # ------------------------------------------------------------------------------
 
-  w_grid <- data.frame(w1=c(0.001,0.001),
-                       w2=c(2.001,2.001))
+  w_grid <- data.frame(c1=c(0.001,2.001),
+                       c2=c(0.001,2.001),
+                       c3=c(0.001,2.001),
+                       c4=c(0.001,2.001))
   init <- "kmeans"
+
+  z <- vector(mode="list", length=nrow(w_grid))
+  plots <- vector(mode="list", length=nrow(w_grid))
 
   for (i in 1:nrow(w_grid)) {
-    w0 = diag(w_grid[,i],P)
+    w0 = diag(w_grid[i,],P)
     prior <- list(
       W = w0,
       logW = -2*sum(log(diag(chol(w0))))
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-8, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
-    do_plots(i, gmm_result, "w", w_grid, gen_path)
+    z[[i]] <- table(gmm_result$z_post)
+    plots[[i]] <- do_plots(i, gmm_result, "w", w_grid, gen_path)
   }
 }
 

@@ -57,7 +57,9 @@ scd_cohort_miss[is.na(CBC), SCD:=FALSE]
 # -----------------------------------------------------------------------------
 
 x <- scd_cohort[,.(CBC,RC)]
-k <- 3
+k <- 10
+init <- "kmeans"
+# init <- "dbscan"
 
 # For DBSCAN
 initParams <- c(0.15, 5)
@@ -77,27 +79,27 @@ prior <- list(
   logW = -2*sum(log(diag(chol(diag(1,p)))))
 )
 
-# With informative prior
-gmm_result <- vb_gmm_cavi(X=x, k=k, prior=prior, delta=1e-7, maxiters = 5000,
-                          init="dbscan", initParams=initParams, verbose=FALSE)
+# # With informative prior
+# gmm_result <- vb_gmm_cavi(X=x, k=k, prior=prior, delta=1e-7, maxiters = 5000,
+#                           init="dbscan", initParams=initParams, verbose=FALSE)
 
 # With informative prior and stop iterations when ELBO starts to reverse
 gmm_result <- vb_gmm_cavi(X=x, k=k, prior=prior, delta=1e-6, maxiters = 5000,
-                          init="dbscan", initParams=initParams,
+                          init=init, initParams=initParams,
                           stopIfELBOReverse=TRUE, verbose=FALSE)
 
-table(gmm_result$z_post)
+# table(gmm_result$z_post)
 
-eb <- data.frame(lb=gmm_result$elbo)
-ggplot(eb, aes(x=1:nrow(eb), y=lb)) + geom_line() + xlab("Iteration") + ylab("ELBO")
+# eb <- data.frame(lb=gmm_result$elbo)
+# ggplot(eb, aes(x=1:nrow(eb), y=lb)) + geom_line() + xlab("Iteration") + ylab("ELBO")
 
 dd <- as.data.frame(cbind(scd_cohort, cluster=gmm_result$z_post))
 dd$cluster <- as.factor(dd$cluster)
-dd$race <- as.factor(dd$race)
+dd$highrisk <- as.factor(dd$highrisk)
 mu <- as.data.frame( t(gmm_result$q_post$m) )
 
-plot_multi_histogram(dd, 'RC', 'cluster')
-plot_multi_histogram(dd, 'CBC', 'cluster')
+# plot_multi_histogram(dd, 'RC', 'cluster')
+# plot_multi_histogram(dd, 'CBC', 'cluster')
 
 cols <- c("#1170AA", "#55AD89", "#EF6F6A", "#D3A333", "#5FEFE8", "#11F444")
 ggplot() +

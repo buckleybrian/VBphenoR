@@ -113,8 +113,7 @@ run_Model <- function(biomarkers, gmm_X, logit_X, gmm_delta=1e-6, logit_delta=1e
 
   gmm_result <- vb_gmm_cavi(X=gmm_X, k=2, delta=gmm_delta,
                             init=gmm_init, initParams=gmm_initParams,
-                            maxiters = gmm_maxiters,
-                            prior=gmm_prior,
+                            maxiters=gmm_maxiters, prior=gmm_prior,
                             stopIfELBOReverse=gmm_stopIfELBOReverse,
                             verbose=gmm_verbose, progressbar=progressbar)
 
