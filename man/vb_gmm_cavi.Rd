@@ -80,9 +80,6 @@ Main algorithm function for the VB CAVI GMM
   X <- faithful
   P <- ncol(X)
 
-  # Run with 4 presumed components for demonstration purposes
-  k = 4
-
   # ------------------------------------------------------------------------------
   # Plotting
   # ------------------------------------------------------------------------------
@@ -95,11 +92,8 @@ Main algorithm function for the VB CAVI GMM
   #' @param grid Grid element used in the plot file name
   #' @param fig_path Path to the directory where the plots should be stored
   #'
-  #' @returns
-  #' @importFrom ggplot2 ggplot
-  #' @export
-
-  do_plots <- function(i, gmm_result, var_name, grid, fig_path) {
+  #' @returns The ggplot figure (p)
+  do_prior_plots <- function(i, gmm_result, var_name, grid, fig_path) {
     dd <- as.data.frame(cbind(X, cluster = gmm_result$z_post))
     dd$cluster <- as.factor(dd$cluster)
 
@@ -128,13 +122,12 @@ Main algorithm function for the VB CAVI GMM
   }
 
   # ------------------------------------------------------------------------------
-  # Dirichlet alpha - same α value for each component and k=6.
+  # Dirichlet alpha - same alpha value for each component and k=6.
   # ------------------------------------------------------------------------------
   alpha_grid <- data.frame(x=c(1,30,70),
                            y=c(271,237,202))
   init <- "kmeans"
-
-  z <- vector(mode="list", length=nrow(alpha_grid))
+  k <- 6
   plots <- vector(mode="list", length=nrow(alpha_grid))
 
   for (i in 1:nrow(alpha_grid)) {
@@ -142,23 +135,21 @@ Main algorithm function for the VB CAVI GMM
       alpha = as.integer(alpha_grid[i,])
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=6, prior=prior, delta=1e-9, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
 
-    z[[i]] <- table(gmm_result$z_post)
-    plots[[i]] <- do_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
+    plots[[i]] <- do_prior_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
   }
 
   # ------------------------------------------------------------------------------
-  # Dirichlet alpha - different α value for each component.
+  # Dirichlet alpha - different alpha value for each component.
   # ------------------------------------------------------------------------------
   alpha_grid <- data.frame(c1=c(1,1,183),
                            c2=c(1,92,92),
                            c3=c(1,183,198),
                            c4=c(1,183,50))
   init <- "kmeans"
-
-  z <- vector(mode="list", length=nrow(alpha_grid))
+  k <- 4
   plots <- vector(mode="list", length=nrow(alpha_grid))
 
   for (i in 1:nrow(alpha_grid)) {
@@ -166,10 +157,10 @@ Main algorithm function for the VB CAVI GMM
       alpha = as.integer(alpha_grid[i,]) # set most of the weight on one component
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-8, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
-    z[[i]] <- table(gmm_result$z_post)
-    plots[[i]] <- do_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
+
+    plots[[i]] <- do_prior_plots(i, gmm_result, "alpha", alpha_grid, gen_path)
   }
 
   # ------------------------------------------------------------------------------
@@ -180,8 +171,7 @@ Main algorithm function for the VB CAVI GMM
                             c3=c(0.1,0.9),
                             c4=c(0.1,0.9))
   init <- "kmeans"
-
-  z <- vector(mode="list", length=nrow(lambda_grid))
+  k <- 4
   plots <- vector(mode="list", length=nrow(lambda_grid))
 
   for (i in 1:nrow(lambda_grid)) {
@@ -189,10 +179,9 @@ Main algorithm function for the VB CAVI GMM
       beta = as.numeric(lambda_grid[i,])
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-8, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
-    z[[i]] <- table(gmm_result$z_post)
-    plots[[i]] <- do_plots(i, gmm_result, "lambda", lambda_grid, gen_path)
+    plots[[i]] <- do_prior_plots(i, gmm_result, "lambda", lambda_grid, gen_path)
   }
 
   # ------------------------------------------------------------------------------
@@ -204,8 +193,7 @@ Main algorithm function for the VB CAVI GMM
                        c3=c(0.001,2.001),
                        c4=c(0.001,2.001))
   init <- "kmeans"
-
-  z <- vector(mode="list", length=nrow(w_grid))
+  k <- 4
   plots <- vector(mode="list", length=nrow(w_grid))
 
   for (i in 1:nrow(w_grid)) {
@@ -215,10 +203,9 @@ Main algorithm function for the VB CAVI GMM
       logW = -2*sum(log(diag(chol(w0))))
     )
 
-    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-9, init=init,
+    gmm_result <- vb_gmm_cavi(X=X, k=k, prior=prior, delta=1e-8, init=init,
                               verbose=FALSE, logDiagnostics=FALSE)
-    z[[i]] <- table(gmm_result$z_post)
-    plots[[i]] <- do_plots(i, gmm_result, "w", w_grid, gen_path)
+    plots[[i]] <- do_prior_plots(i, gmm_result, "w", w_grid, gen_path)
   }
 }
 

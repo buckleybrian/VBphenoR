@@ -63,7 +63,6 @@ doi:10.3389/fams.2024.1302825
 Useful links:
 \itemize{
   \item \url{https://github.com/buckleybrian/VBphenoR}
-  \item \url{https://buckleybrian.github.io/VBphenoR/}
   \item Report bugs at \url{https://github.com/buckleybrian/VBphenoR/issues}
 }
 
